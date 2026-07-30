@@ -1,0 +1,22 @@
+{
+  "name": "IGL BBS — Behaviour Based Safety",
+  "short_name": "IGL BBS",
+  "description": "Behaviour Based Safety observation system of India Glycols Limited",
+  "id": "/",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0A1C2E",
+  "theme_color": "#0A1C2E",
+  "lang": "en-IN",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    { "src": "assets/logo.png", "sizes": "96x96", "type": "image/png", "purpose": "any" },
+    { "src": "assets/logo.png", "sizes": "96x96", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "New observation", "short_name": "New", "url": "./index.html#new" },
+    { "name": "Dashboard", "short_name": "Dashboard", "url": "./index.html#dashboard" }
+  ]
+}

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0A1C2E">
+<meta name="description" content="Behaviour Based Safety (BBS) observation system of India Glycols Limited — observation entry, dashboards, analyser, corrective actions and AI assistance.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="IGL BBS">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="robots" content="noindex, nofollow">
+<title>IGL BBS — Behaviour Based Safety | India Glycols Limited</title>
+<link rel="icon" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/logo.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="css/app.css?v=1.1.0">
+<script>
+  /* stamp the saved theme before first paint so there is no flash */
+  try {
+    var t = JSON.parse(localStorage.getItem('iglbbs.settings') || '{}');
+    document.documentElement.setAttribute('data-theme', t.theme === 'light' ? 'light' : 'dark');
+    if (t.density) document.documentElement.setAttribute('data-density', t.density);
+  } catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+</script>
+<!-- SheetJS (Excel export/import) — served locally so it works offline and behind the plant firewall -->
+<script src="vendor/xlsx.full.min.js" defer></script>
+</head>
+<div class="toasts" id="toasts"></div>
+<div class="tip" id="tip"></div>
+<div id="print-area"></div>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <img src="assets/logo.png" alt="India Glycols Limited logo">
+      <div>
+        <div class="t1">IGL <span style="color:var(--acc)">BBS</span></div>
+        <div class="t2">BEHAVIOUR BASED SAFETY</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav" aria-label="Main navigation">
+      <div class="grp">Overview</div>
+      <button data-view="dashboard"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</button>
+      <div class="grp">Observations</div>
+      <button data-view="new"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>New Observation</button>
+      <button data-view="register"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h10"/></svg>Observation Register<span class="cnt" id="cnt-obs">0</span></button>
+      <div class="grp">Workflow</div>
+      <button data-view="actions"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>Corrective Actions<span class="cnt" id="cnt-act">0</span></button>
+      <div class="grp">Analysis</div>
+      <button data-view="analyser"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>BBS Analyser</button>
+      <button data-view="ai"><svg viewBox="0 0 24 24"><path d="M12 3l1.7 4.6L18 9.3l-4.3 1.7L12 15.6l-1.7-4.6L6 9.3l4.3-1.7z"/><path d="M18.5 15l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></svg>AI Assistant</button>
+      <div class="grp">System</div>
+      <button data-view="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.01a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.01a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>Settings</button>
+    </nav>
+    <div class="side-foot">
+      <a href="https://iglsafetymanagementsystem.netlify.app/" target="_blank" rel="noopener">↗ IGL HSE Portal</a>
+      <div style="margin-top:6px">India Glycols Limited · v1.1.0</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="burger" id="burger" aria-label="Menu">☰</button>
+      <div style="flex:1">
+        <h1 id="view-title">Dashboard</h1>
+        <div class="sub" id="view-sub"></div>
+      </div>
+      <div class="tb-actions">
+        <button class="icon-btn" id="btn-search" title="Search everything (Ctrl+K)" aria-label="Search">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
+        <button class="icon-btn" id="btn-demo" title="Load sample data for testing" aria-label="Demo data">🎲</button>
+        <button class="icon-btn" id="btn-theme" title="Toggle light / dark theme" aria-label="Toggle theme">
+          <svg viewBox="0 0 24 24" id="ico-theme"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>
+        <button class="btn sm primary" id="quick-new">+ Observation</button>
+        <a class="btn sm ghost" href="https://iglsafetymanagementsystem.netlify.app/" target="_blank" rel="noopener" title="Open IGL HSE Portal">HSE Portal ↗</a>
+      </div>
+    </header>
+    <div class="content">
+      <section class="view" id="view-dashboard"></section>
+      <section class="view" id="view-new"></section>
+      <section class="view" id="view-register"></section>
+      <section class="view" id="view-actions"></section>
+      <section class="view" id="view-analyser"></section>
+      <section class="view" id="view-ai"></section>
+      <section class="view" id="view-settings"></section>
+    </div>
+  </div>
+</div>
+
+<nav class="mnav" id="mnav" aria-label="Primary">
+  <button data-view="dashboard"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</button>
+  <button data-view="new"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>New</button>
+  <button data-view="register"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h10"/></svg>Register</button>
+  <button data-view="actions"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>Actions</button>
+  <button data-view="ai"><svg viewBox="0 0 24 24"><path d="M12 3l1.7 4.6L18 9.3l-4.3 1.7L12 15.6l-1.7-4.6L6 9.3l4.3-1.7z"/><path d="M18.5 15l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></svg>AI</button>
+</nav>
+
+<div class="cmdk-wrap" id="cmdk-wrap" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="cmdk">
+    <input type="text" id="cmdk-input" placeholder="Search observations, actions, commands…" autocomplete="off">
+    <div class="sep"></div>
+    <div class="res" id="cmdk-res"></div>
+    <div class="foot"><span><span class="kbd">↑</span><span class="kbd">↓</span> navigate</span><span><span class="kbd">↵</span> open</span><span><span class="kbd">esc</span> close</span></div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox"><img id="lightbox-img" alt="Observation photo"></div>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true">
+  <div class="modal" id="modal">
+    <div class="modal-h"><h3 id="modal-title"></h3><button class="x" id="modal-x" aria-label="Close">✕</button></div>
+    <div class="modal-b" id="modal-body"></div>
+    <div class="modal-f" id="modal-foot"></div>
+  </div>
+</div>
+
+  <script src="js/01-data.js?v=1.1.0" defer></script>
+  <script src="js/02-core.js?v=1.1.0" defer></script>
+  <script src="js/03-dashboard.js?v=1.1.0" defer></script>
+  <script src="js/04-observation-form.js?v=1.1.0" defer></script>
+  <script src="js/05-register.js?v=1.1.0" defer></script>
+  <script src="js/06-actions.js?v=1.1.0" defer></script>
+  <script src="js/07-analyser.js?v=1.1.0" defer></script>
+  <script src="js/08-ai.js?v=1.1.0" defer></script>
+  <script src="js/09-settings.js?v=1.1.0" defer></script>
+  <script src="js/10-ai-tools.js?v=1.1.0" defer></script>
+  <script src="js/11-app.js?v=1.1.0" defer></script>
+  <script>
+    if ('serviceWorker' in navigator && location.protocol === 'https:') {
+      window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+    }
+  </script>
+</body>
+</html>

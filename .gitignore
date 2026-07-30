@@ -1,0 +1,33 @@
+# dependencies / tooling
+node_modules/
+package-lock.json
+yarn.lock
+
+# netlify
+.netlify/
+
+# local env & secrets — never commit an OpenRouter key
+.env
+.env.*
+*.key
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+.idea/
+.vscode/
+
+# build & test artefacts
+dist/
+*.log
+test-results/
+playwright-report/
+shot_*.png
+
+# exported data (may contain employee information)
+*.xlsx
+*.xls
+*.csv
+IGL_BBS_Backup_*.json
